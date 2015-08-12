@@ -1,0 +1,20 @@
+{
+  "author": {
+    "name": "Eero Bragge",
+    "email": "ebragge@live.com"
+  },
+  "dependencies": {
+    "csv-parse": ">=1.0.0",
+    "mathjs": ">=2.1.0"
+  },
+  "description": "Calculate bounded or unbounded linear least squares curve fit using Moore-Penrose pseudoinverse",
+  "keywords": [ "curve fitting", "pseudoinverse", "Moore-Penrose" ],
+  "license": "Apache-2.0",
+  "main": "index.js",
+  "name": "linearleastsquarescurvefit",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ebragge/LinearLeastSquaresCurveFit.git"
+  },
+  "version": "0.0.15"
+}
