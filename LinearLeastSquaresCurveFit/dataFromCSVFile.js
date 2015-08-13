@@ -6,7 +6,7 @@ var curvefit1 = require('./boundedLinearLeastSquaresCurveFit');
 var curvefit2 = require('./unboundedLinearLeastSquaresCurveFit');
 
 module.exports = {
-    fromCSVFile: function (dataPath, callback, bounded, minValue, maxValue, delimiterChar) {
+    dataFromCSVFile: function (dataPath, callback, bounded, minValue, maxValue, delimiterChar) {
         function parseRow(element, index, array) {
             array[index] = parseFloat(element);
         }

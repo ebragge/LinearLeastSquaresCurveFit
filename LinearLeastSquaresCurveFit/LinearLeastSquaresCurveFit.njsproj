@@ -32,8 +32,9 @@
   <ItemGroup>
     <Compile Include="boundedLinearLeastSquaresCurveFit.js" />
     <Compile Include="index.js" />
-    <Compile Include="fitCurveUsingFunctions.js" />
-    <Compile Include="fromCSVFile.js" />
+    <Compile Include="dataFromArrays.js" />
+    <Compile Include="usingFunctions.js" />
+    <Compile Include="dataFromCSVFile.js" />
     <Compile Include="pseudoInverse.js" />
     <Compile Include="tests.js" />
     <Compile Include="unboundedLinearLeastSquaresCurveFit.js" />

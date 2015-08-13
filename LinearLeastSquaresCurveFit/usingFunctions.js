@@ -4,7 +4,7 @@ var curvefit1 = require('./boundedLinearLeastSquaresCurveFit');
 var curvefit2 = require('./unboundedLinearLeastSquaresCurveFit');
 
 module.exports = {
-    fitCurveUsingFunctions: function (functions, x, y, bounded, minValues, maxValues) {
+    usingFunctions: function (functions, x, y, bounded, minValues, maxValues) {
         
         function convertArrayToMatrix(array) {
             var matrix = math.matrix(array);
@@ -25,7 +25,7 @@ module.exports = {
             throw new Exception('Invalid arguments');
         }
         
-        var vectors = [];;
+        var vectors = [];
         
         for (var f = 0; f < functions.length; f++) {
             var fun = [];
