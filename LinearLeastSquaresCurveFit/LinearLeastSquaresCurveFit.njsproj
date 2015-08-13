@@ -12,7 +12,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>8f882a24-b935-41fb-a7ac-7e27757a4a7d</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>index.js</StartupFile>
+    <StartupFile>
+    </StartupFile>
     <StartWebBrowser>False</StartWebBrowser>
     <SearchPath>
     </SearchPath>
@@ -36,7 +37,6 @@
     <Compile Include="usingFunctions.js" />
     <Compile Include="dataFromCSVFile.js" />
     <Compile Include="pseudoInverse.js" />
-    <Compile Include="tests.js" />
     <Compile Include="unboundedLinearLeastSquaresCurveFit.js" />
     <Content Include="example_data.csv" />
     <Content Include="package.json" />

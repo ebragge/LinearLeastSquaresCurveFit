@@ -2,8 +2,6 @@
 var arr = require('./dataFromArrays');
 var csv = require('./dataFromCSVFile');
 
-var test = require('./tests');
-
 module.exports = {
     createFittingCurveUsingFunctions: function (functions, x, y, bounded, minValues, maxValues) {
         return fun.usingFunctions(functions, x, y, bounded, minValues, maxValues)
@@ -13,8 +11,5 @@ module.exports = {
     },
     createFittingCurveUsingDataFromCSVFile: function(dataPath, callback, bounded, minValue, maxValue, delimiterChar) {
         return csv.dataFromCSVFile(dataPath, callback, bounded, minValue, maxValue, delimiterChar);
-    },
-    tests: function() {
-        return test.tests();
     }
 }
