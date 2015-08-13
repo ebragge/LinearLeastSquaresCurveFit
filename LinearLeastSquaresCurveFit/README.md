@@ -4,35 +4,36 @@
 
 	var fit = require('linearleastsquarescurvefit');
 
-    console.log(fit.createFittingCurveUsingDataFromArrays
-		[[1,1,1,1,1,1,1],
-		 [0,1,2,3,4,5,6],
-		 [0,1,4,9,16,25,36],
-		 [0,1,8,27,64,125,216]
+	console.log(fit.createFittingCurveUsingDataFromArrays(
+		[
+			[1, 1, 1, 1, 1, 1, 1],
+			[0, 1, 2, 3, 4, 5, 6],
+			[0, 1, 4, 9, 16, 25, 36],
+			[0, 1, 8, 27, 64, 125, 216]
 		],
-		[0,1,10,100,10,1,0])
-	);
+		[0, 1, 10, 100, 10, 1, 0]));
 
 	console.log(fit.createFittingCurveUsingFunctions(
 		[
-		 function (x) { return 1; }, 
-		 function (x) { return x; }, 
-		 function (x) { return x * x; }, 
-		 function (x) { return x * x * x; }
+	        function (x) { return 1; }, 
+		    function (x) { return x; }, 
+			function (x) { return x * x; }, 
+			function (x) { return x * x * x; }
 		],
 		[0, 1, 2, 3, 4, 5, 6], 
 		[0, 1, 10, 100, 10, 1, 0])
 	); 
 
-	console.log(fit.createFittingCurveUsingFunctions([
-				function (x) { return 1; }, 
-				function (x) { return x; }, 
-				function (x) { return x * x; }, 
-				function (x) { return Math.exp(x); },
-				function (x) { return Math.log(x) }],
-				[1, 2, 3, 4, 5, 6, 7, 8, 9], 
-				[0, 1, 4, 10, 100, 118, 125, 129, 131])); 				
-
+	console.log(fit.createFittingCurveUsingFunctions(
+		[
+			function (x) { return 1; }, 
+			function (x) { return x; }, 
+			function (x) { return x * x; }, 
+			function (x) { return Math.log(x) }],
+		[1, 2, 3, 4, 5, 6, 7, 8, 9], 
+		[0, 1, 4, 10, 100, 118, 125, 129, 131])
+	); 
+	
 	// xxx; xxx; xxx; xxx; ... xxx      <-
 	// yyy; yyy; yyy; yyy; ... yyy      <-
 	// ...								<-	component data	
@@ -44,9 +45,10 @@
 	// 3.73E-06;8.46E-06;1.87E-05;4.01E-05;8.36E-05;0.000169857;0.000335463;0.00064438;0.00120386; ...
 	// 2.23E-10;6.69E-10;1.95E-09;5.53E-09;1.52E-08;4.08E-08;1.06E-07;2.70E-07;6.66E-07;1.60E-06; ...
 	// 8.32E-16;3.29E-15;1.27E-14;4.74E-14;1.72E-13;6.10E-13;2.10E-12;7.03E-12;2.29E-11;7.25E-11; ...
-	// 0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;0;0;0;0;0;0;0;0;0; ...
-	
+	// 0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;0;0;0;0;0;0;0;0;0; ...				
+
 	fit.createFittingCurveUsingDataFromCSVFile("example_data.csv", 
-		function (result) { 
-			console.log(result); 
-		}, true, 0, 1, ';');
+	    function (result) { 
+		console.log(result); 
+		}, true, 0, 1, ';'
+	);

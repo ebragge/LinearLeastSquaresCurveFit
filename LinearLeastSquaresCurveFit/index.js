@@ -6,7 +6,7 @@ var test = require('./tests');
 
 module.exports = {
     createFittingCurveUsingFunctions: function (functions, x, y, bounded, minValues, maxValues) {
-        return fun.fitCurveUsingFunctions(functions, x, y, bounded, minValues, maxValues)
+        return fun.usingFunctions(functions, x, y, bounded, minValues, maxValues)
     },
     createFittingCurveUsingDataFromArrays: function (vectors, target, bounded, minValues, maxValues) {
         return arr.dataFromArrays(vectors, target, bounded, minValues, maxValues);
