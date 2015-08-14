@@ -18,13 +18,13 @@ var pInv = require('./pseudoInverse');
 var mxA = require('./createMatrix'); 
 
 module.exports = {
-    unboundedLinearLeastSquaresCurveFit: function (vectors, target) {
+    unboundedLinearLeastSquaresCurveFit: function (vectors, target, forceMatrix) {
         var A = mxA.createMatrix(vectors);
         return this.unboundedLinearLeastSquaresCurveFitA(A, target);
     },
-    unboundedLinearLeastSquaresCurveFitA: function (A, target) {
+    unboundedLinearLeastSquaresCurveFitA: function (A, target, forceMatrix) {
         var x = math.multiply(pInv.pseudoInverse(A), target);
-        if (typeof (x) == 'number') { // convert number back to 1x1 matrix
+        if (forceMatrix && typeof (x) == 'number') { // convert number back to 1x1 matrix
             return math.matrix([[x]]);
         }
         else return x;

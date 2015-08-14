@@ -44,28 +44,34 @@ module.exports = {
         var vectorDataCopy = vectorData.slice();
         var activeVectors = vectorData.length;
         
-        var b = math.matrix(target);
-        b.resize([target.length, 1]); // change size from [n] -> [n, 1] for matrix calculations
+        var b = createMatrix.createVector(target);
         
         // Solution
         var result = new Array(activeVectors);
         
         // Keep track of active vectors
         var index = new Array(activeVectors);
-        for (var i = 0; i < activeVectors; i++) { index[i] = i; result[i] = 0; }
+        
+        // Keep track of removed vectors
+        var removed = new Array(activeVectors);
+
+        for (var i = 0; i < activeVectors; i++) {
+            index[i] = i;
+            result[i] = 0;
+            removed[i] = false;
+        }
                 
         var x = null;
         var noSolution = true;
 
         while (noSolution) {
             var A = createMatrix.createMatrix(vectorDataCopy);
-            x = curvefit.unboundedLinearLeastSquaresCurveFitA(A, b);
+            x = curvefit.unboundedLinearLeastSquaresCurveFitA(A, b, true);
             var err = fitError.fitError(A, x, b);
             
             noSolution = false;
-            var boundaryBreak = false;
             var biggestError = 0;
-            var removeIndex;
+            var removeIndex = -1;
             
             for (var i = activeVectors - 1; i >= 0; i--) {
                 var factor = math.subset(x, math.index(i, 0));
@@ -79,15 +85,17 @@ module.exports = {
                         removeIndex = i;
                         biggestError = errc - err;
                     }
-                    boundaryBreak = true;
                 }
             }
-            if (boundaryBreak) {
+            if (removeIndex >= 0) {
                 var factor = math.subset(x, math.index(removeIndex, 0));
                 var minimum = minValues[index[removeIndex]];
                 var maximum = maxValues[index[removeIndex]];
                 var val = factor < minimum ? minimum : maximum;
+                
                 result[index[removeIndex]] = val;     // Use boundary value
+                removed[index[removeIndex]] = true;
+                
                 for (var j = 0; j < target.length; j++) { // Modify target data 
                     b.subset(math.index(j, 0),
                         (math.subset(b, math.index(j, 0))) -
@@ -99,6 +107,44 @@ module.exports = {
         for (var i = activeVectors - 1; i >= 0; i--) {
             result[index[i]] = math.subset(x, math.index(i, 0));
         }
+             
+        for (var i = 0; i < vectorData.length; i++) if (removed[i]) {
+            return SecondStep(vectorData, target, minValues, maxValues, result, removed);
+        }
+               
         return result;
     }
+}
+
+function SecondStep(vectorData, target, minValues, maxValues, result, removed) {
+    var smallStep = 0.000001;
+    
+    var A = createMatrix.createMatrix(vectorData);
+
+    for (var i = 0; i < vectorData.length; i++) {
+        if (removed[i]) {
+            var resultCopy = result.slice();         
+            var b = createMatrix.createVector(target);
+            var x = createMatrix.createVector(resultCopy);
+            var err = fitError.fitError(A, x, b);
+
+            var val = math.subset(x, math.index(i, 0));
+            x.subset(math.index(i, 0), val + (val == minValues[i] ? 1 : -1) * smallStep);
+            
+            var err2 = fitError.fitError(A, x, b);
+            if (err2 < err) {
+                for (var v = vectorData.length - 1; v >= 0; v--) {
+                    if (v != i) {
+                        for (var j = 0; j < target.length; j++) {
+                            b.subset(math.index(j, 0),
+                                (math.subset(b, math.index(j, 0))) -
+                                (result[v] * math.subset(vectorData[v], math.index(j, 0))));
+                        }
+                    }
+                }
+                result[i] = curvefit.unboundedLinearLeastSquaresCurveFit([vectorData[i]], b, false);
+            }
+        }
+    }
+    return result;
 }

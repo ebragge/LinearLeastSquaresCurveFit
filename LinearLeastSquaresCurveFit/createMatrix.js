@@ -15,6 +15,11 @@ module.exports = {
         }
         return A;
     },
+    createVector: function (array) {
+        var vec = math.matrix(array);
+        vec.resize([array.length, 1]); // change size from [n] -> [n, 1] for matrix calculations  
+        return vec;  
+    }, 
     cloneMatrix: function (matrix) {
         var size = matrix.size();
         var A = math.zeros(size[0], size[1]);
