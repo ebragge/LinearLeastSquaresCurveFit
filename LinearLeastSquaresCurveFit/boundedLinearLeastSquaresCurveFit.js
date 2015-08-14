@@ -86,15 +86,15 @@ function _boundedLinearLeastSquaresCurveFit(vectorData, target, minValues, maxVa
         x = curvefit.unboundedLinearLeastSquaresCurveFit(vectorDataCopy, b);
         noSolution = false;
         var boundaryBreak = false;
-        var biggestError = 0;
+        var smallestError = null;
         var removeIndex;
         for (var i = activeVectors - 1; i >= 0; i--) {
             var factor = math.subset(x, math.index(i, 0));
             var minimum = minValues[index[i]];
             if (factor < minimum) { // Factor cannot be below minimum
-                if (minimum - factor > biggestError) {
+                if (smallestError == null || minimum - factor < smallestError) {
                     removeIndex = i;
-                    biggestError = minimum - factor;
+                    smallestError = minimum - factor;
                 }
                 boundaryBreak = true;
                 minimumBoundaryBroken = true;
@@ -112,15 +112,15 @@ function _boundedLinearLeastSquaresCurveFit(vectorData, target, minValues, maxVa
             removeVector(removeIndex); // Remove vector from further calculations
         }
         else {
-            biggestError = 0;
+            smallestError = null;
             boundaryBreak = false;
             for (var i = activeVectors - 1; i >= 0; i--) {
                 var factor = math.subset(x, math.index(i, 0));
                 var maximum = maxValues[index[i]];
                 if (factor > maximum) {  // Factor cannot exceed maximumValue
-                    if (factor - maximum > biggestError) {
+                    if (smallestError == null || factor - maximum < smallestError) {
                         removeIndex = i;
-                        biggestError = factor - maximum;
+                        smallestError = factor - maximum;
                     }
                     boundaryBreak = true;
                     maximumBoundaryBroken = true;
