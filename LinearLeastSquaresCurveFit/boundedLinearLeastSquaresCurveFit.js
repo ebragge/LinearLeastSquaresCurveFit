@@ -27,6 +27,8 @@
 
 var math = require('mathjs');
 var curvefit = require('./unboundedLinearLeastSquaresCurveFit');
+var createMatrix = require('./createMatrix');
+var fitError = require('./fitError');
 
 module.exports = {
     boundedLinearLeastSquaresCurveFit: function (vectors, target, minValues, maxValues) {
@@ -83,7 +85,9 @@ function _boundedLinearLeastSquaresCurveFit(vectorData, target, minValues, maxVa
     var x = null;
     var noSolution = true;
     while (noSolution) {
-        x = curvefit.unboundedLinearLeastSquaresCurveFit(vectorDataCopy, b);
+        var A = createMatrix.createMatrix(vectorDataCopy);
+        x = curvefit.unboundedLinearLeastSquaresCurveFitA(A, b);
+        var err = fitError.fitError(A, x, b, target.length);
         noSolution = false;
         var boundaryBreak = false;
         var smallestError = null;
@@ -92,9 +96,12 @@ function _boundedLinearLeastSquaresCurveFit(vectorData, target, minValues, maxVa
             var factor = math.subset(x, math.index(i, 0));
             var minimum = minValues[index[i]];
             if (factor < minimum) { // Factor cannot be below minimum
-                if (smallestError == null || minimum - factor < smallestError) {
+                var x_copy = x;
+                x_copy.subset(math.index(i, 0), 0);
+                var err2 = fitError.fitError(A, x_copy, b, target.length);
+                if (smallestError == null || err2 - err < smallestError) {
                     removeIndex = i;
-                    smallestError = minimum - factor;
+                    smallestError = err2 - err;
                 }
                 boundaryBreak = true;
                 minimumBoundaryBroken = true;
@@ -118,9 +125,12 @@ function _boundedLinearLeastSquaresCurveFit(vectorData, target, minValues, maxVa
                 var factor = math.subset(x, math.index(i, 0));
                 var maximum = maxValues[index[i]];
                 if (factor > maximum) {  // Factor cannot exceed maximumValue
-                    if (smallestError == null || factor - maximum < smallestError) {
+                    var x_copy = x;
+                    x_copy.subset(math.index(i, 0), 0);
+                    var err2 = fitError.fitError(A, x_copy, b, target.length);
+                    if (smallestError == null || err2 - err < smallestError) {
                         removeIndex = i;
-                        smallestError = factor - maximum;
+                        smallestError = err2 - err;
                     }
                     boundaryBreak = true;
                     maximumBoundaryBroken = true;

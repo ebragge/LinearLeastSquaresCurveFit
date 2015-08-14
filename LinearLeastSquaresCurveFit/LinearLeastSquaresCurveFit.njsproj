@@ -32,6 +32,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="boundedLinearLeastSquaresCurveFit.js" />
+    <Compile Include="createMatrix.js" />
+    <Compile Include="fitError.js" />
     <Compile Include="index.js" />
     <Compile Include="dataFromArrays.js" />
     <Compile Include="usingFunctions.js" />
