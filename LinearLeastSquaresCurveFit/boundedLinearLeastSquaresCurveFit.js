@@ -85,23 +85,30 @@ function _boundedLinearLeastSquaresCurveFit(vectorData, target, minValues, maxVa
     while (noSolution) {
         x = curvefit.unboundedLinearLeastSquaresCurveFit(vectorDataCopy, b);
         noSolution = false;
-        var boundaryBreak = false;        
+        var boundaryBreak = false;
+        var biggestError = 0;
+        var removeIndex;
         for (var i = activeVectors - 1; i >= 0; i--) {
             var factor = math.subset(x, math.index(i, 0));
             var minimum = minValues[index[i]];
-            if (factor < minimum) {             // Factor cannot be below minimum
-                result[index[i]] = minimum;     // Use minimum value
-                for (var j = 0; j < target.length; j++) {    // Modify target data 
-                    b.subset(math.index(j, 0),
-                                 (math.subset(b, math.index(j, 0))) -
-                                 (minimum * math.subset(vectorDataCopy[i], math.index(j, 0))));
-                }
-                removeVector(i);                // Remove vector from further calculations
+            if (factor < minimum) { // Factor cannot be below minimum
+                if (minimum - factor > biggestError) removeIndex = i;
                 boundaryBreak = true;
                 minimumBoundaryBroken = true;
             }
         }
-        if (!boundaryBreak) {
+        if ( boundaryBreak ) {     
+            var factor = math.subset(x, math.index(removeIndex, 0));
+            var minimum = minValues[index[removeIndex]];             
+            result[index[removeIndex]] = minimum;     // Use minimum value
+            for (var j = 0; j < target.length; j++) {    // Modify target data 
+                b.subset(math.index(j, 0),
+                    (math.subset(b, math.index(j, 0))) -
+                    (minimum * math.subset(vectorDataCopy[removeIndex], math.index(j, 0))));
+            }
+            removeVector(removeIndex); // Remove vector from further calculations
+        }
+        else {
             for (var i = activeVectors - 1; i >= 0; i--) {
                 var factor = math.subset(x, math.index(i, 0));
                 var maximum = maxValues[index[i]];
@@ -114,6 +121,7 @@ function _boundedLinearLeastSquaresCurveFit(vectorData, target, minValues, maxVa
                     }
                     removeVector(i);                       // Remove vector from further calculations
                     maximumBoundaryBroken = true;
+                    break;
                 }
             }
         }
