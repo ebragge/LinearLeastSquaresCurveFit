@@ -14,5 +14,15 @@ module.exports = {
             }
         }
         return A;
+    },
+    cloneMatrix: function (matrix) {
+        var size = matrix.size();
+        var A = math.zeros(size[0], size[1]);
+        for (var i = 0; i < size[0]; i++) {
+            for (var j = 0; j < size[1]; j++) {
+                A.subset(math.index(i, j), math.subset(matrix, math.index(i, j)));
+            }
+        }
+        return A;
     }
 }

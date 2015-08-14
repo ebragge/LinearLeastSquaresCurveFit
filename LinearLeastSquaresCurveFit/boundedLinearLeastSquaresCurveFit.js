@@ -87,73 +87,49 @@ function _boundedLinearLeastSquaresCurveFit(vectorData, target, minValues, maxVa
     while (noSolution) {
         var A = createMatrix.createMatrix(vectorDataCopy);
         x = curvefit.unboundedLinearLeastSquaresCurveFitA(A, b);
-        var err = fitError.fitError(A, x, b, target.length);
+        var err = fitError.fitError(A, x, b);
+        
         noSolution = false;
         var boundaryBreak = false;
-        var smallestError = null;
+        var biggestError = 0;
         var removeIndex;
+        
         for (var i = activeVectors - 1; i >= 0; i--) {
             var factor = math.subset(x, math.index(i, 0));
             var minimum = minValues[index[i]];
-            if (factor < minimum) { // Factor cannot be below minimum
-                var x_copy = x;
-                x_copy.subset(math.index(i, 0), 0);
-                var err2 = fitError.fitError(A, x_copy, b, target.length);
-                if (smallestError == null || err2 - err < smallestError) {
+            var maximum = maxValues[index[i]];
+            if (factor < minimum || factor > maximum) { // boundary break
+                var xc = createMatrix.cloneMatrix(x);
+                xc.subset(math.index(i, 0), factor < minimum ? minimum : maximum);
+                var errc = fitError.fitError(A, xc, b);
+                if (errc - err > biggestError) {
                     removeIndex = i;
-                    smallestError = err2 - err;
+                    biggestError = errc - err;
                 }
                 boundaryBreak = true;
-                minimumBoundaryBroken = true;
-            }
+            } 
         }
         if ( boundaryBreak ) {     
             var factor = math.subset(x, math.index(removeIndex, 0));
-            var minimum = minValues[index[removeIndex]];             
-            result[index[removeIndex]] = minimum;     // Use minimum value
+            var minimum = minValues[index[removeIndex]];
+            var maximum = maxValues[index[removeIndex]];
+            var val = factor < minimum ? minimum : maximum;              
+            result[index[removeIndex]] = val;     // Use boundary value
             for (var j = 0; j < target.length; j++) { // Modify target data 
                 b.subset(math.index(j, 0),
                     (math.subset(b, math.index(j, 0))) -
-                    (minimum * math.subset(vectorDataCopy[removeIndex], math.index(j, 0))));
+                    (val * math.subset(vectorDataCopy[removeIndex], math.index(j, 0))));
             }
             removeVector(removeIndex); // Remove vector from further calculations
-        }
-        else {
-            smallestError = null;
-            boundaryBreak = false;
-            for (var i = activeVectors - 1; i >= 0; i--) {
-                var factor = math.subset(x, math.index(i, 0));
-                var maximum = maxValues[index[i]];
-                if (factor > maximum) {  // Factor cannot exceed maximumValue
-                    var x_copy = x;
-                    x_copy.subset(math.index(i, 0), 0);
-                    var err2 = fitError.fitError(A, x_copy, b, target.length);
-                    if (smallestError == null || err2 - err < smallestError) {
-                        removeIndex = i;
-                        smallestError = err2 - err;
-                    }
-                    boundaryBreak = true;
-                    maximumBoundaryBroken = true;
-                }
-            }
-            if (boundaryBreak) {
-                var factor = math.subset(x, math.index(removeIndex, 0));
-                var maximum = maxValues[index[removeIndex]];
-                result[index[removeIndex]] = maximum;     // Use maximum value
-                for (var j = 0; j < target.length; j++) { // Modify target data 
-                    b.subset(math.index(j, 0),
-                        (math.subset(b, math.index(j, 0))) -
-                        (maximum * math.subset(vectorDataCopy[removeIndex], math.index(j, 0))));
-                }
-                removeVector(removeIndex); // Remove vector from further calculations
-            }
+            if (factor < minimum)   minimumBoundaryBroken = true;
+            else                    maximumBoundaryBroken = true;
         }
     }
     for (var i = activeVectors - 1; i >= 0; i--) {
         result[index[i]] = math.subset(x, math.index(i, 0));
     }
     
-    // If both boundaries are broken recalculate
+    // If both boundaries are broken recalculate with maxed values removed
     if (minimumBoundaryBroken && maximumBoundaryBroken) {
         var mVectors = [];
         for (var i = 0; i < result.length; i++) {
