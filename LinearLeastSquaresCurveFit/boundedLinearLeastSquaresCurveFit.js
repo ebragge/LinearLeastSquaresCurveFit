@@ -30,6 +30,8 @@ var curvefit = require('./unboundedLinearLeastSquaresCurveFit');
 var createMatrix = require('./createMatrix');
 var fitError = require('./fitError');
 
+var fs = require('fs');
+
 module.exports = {
     boundedLinearLeastSquaresCurveFit: function (vectorData, target, minValues, maxValues) {
         
@@ -58,8 +60,9 @@ module.exports = {
         for (var i = 0; i < activeVectors; i++) {
             index[i] = i;
             result[i] = 0;
-            removed[i] = false;
+            removed[i] = -1;
         }
+        var removeCount = 0;
                 
         var x = null;
         var noSolution = true;
@@ -69,8 +72,24 @@ module.exports = {
             x = curvefit.unboundedLinearLeastSquaresCurveFitA(A, b, true);
             var err = fitError.fitError(A, x, b);
             
+            fs.appendFileSync('solution.txt',x);
+            fs.appendFileSync('solution.txt', '\r\n');
+            fs.appendFileSync('solution.txt', index);
+            fs.appendFileSync('solution.txt', '\r\n');
+            fs.appendFileSync('solution.txt',err);
+            fs.appendFileSync('solution.txt', '\r\n');
+            
+            var xx = createMatrix.cloneMatrix(x);
+            for (var i = activeVectors - 1; i >= 0; i--) {
+                var factor = math.subset(x, math.index(i, 0));
+                var minimum = minValues[index[i]];
+                var maximum = maxValues[index[i]];
+                xx.subset(math.index(i, 0), factor < minimum ? minimum : maximum);
+            }
+            var err2 = fitError.fitError(A, xx, b);
+
             noSolution = false;
-            var biggestError = 0;
+            var smallestError = null;
             var removeIndex = -1;
             
             for (var i = activeVectors - 1; i >= 0; i--) {
@@ -78,12 +97,13 @@ module.exports = {
                 var minimum = minValues[index[i]];
                 var maximum = maxValues[index[i]];
                 if (factor < minimum || factor > maximum) { // boundary break
-                    var xc = createMatrix.cloneMatrix(x);
-                    xc.subset(math.index(i, 0), factor < minimum ? minimum : maximum);
+                    var xc = createMatrix.cloneMatrix(xx);
+                    xc.subset(math.index(i, 0), factor);
+
                     var errc = fitError.fitError(A, xc, b);
-                    if (errc - err > biggestError) {
+                    if (smallestError == null || errc - err < smallestError) {
                         removeIndex = i;
-                        biggestError = errc - err;
+                        smallestError = errc - err;
                     }
                 }
             }
@@ -94,7 +114,7 @@ module.exports = {
                 var val = factor < minimum ? minimum : maximum;
                 
                 result[index[removeIndex]] = val;     // Use boundary value
-                removed[index[removeIndex]] = true;
+                removed[index[removeIndex]] = removeCount++;
                 
                 for (var j = 0; j < target.length; j++) { // Modify target data 
                     b.subset(math.index(j, 0),
@@ -108,7 +128,7 @@ module.exports = {
             result[index[i]] = math.subset(x, math.index(i, 0));
         }
              
-        for (var i = 0; i < vectorData.length; i++) if (removed[i]) {
+        if (removeCount > 0) {
             return SecondStep(vectorData, target, minValues, maxValues, result, removed);
         }
                
@@ -122,7 +142,7 @@ function SecondStep(vectorData, target, minValues, maxValues, result, removed) {
     var A = createMatrix.createMatrix(vectorData);
 
     for (var i = 0; i < vectorData.length; i++) {
-        if (removed[i]) {
+        if (removed[i] != -1) {
             var resultCopy = result.slice();         
             var b = createMatrix.createVector(target);
             var x = createMatrix.createVector(resultCopy);
